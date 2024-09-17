@@ -1,6 +1,8 @@
 package com.nicolas.app_academy.entities;
 
-import java.time.LocalDateTime;
+import java.util.List;
+
+import com.nicolas.app_academy.entities.enums.planDifficultyStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,16 +13,15 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "tb_progress")
-public class Progress {
+@Table(name = "tb_trainingPlans")
+public class TrainingPlans {
   
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  private User user;
-  private LocalDateTime monitoringStartedAt;
-  private Float bodyWeight;
-  private BodyMeasurements bodyMeasurements;
-  private Exercise exercisesPerfomed;
+  private String planName;
+  private String planDescription;
+  private planDifficultyStatus difficultyStatus;
+  private List<Exercise> exerciseList;
 
 }
