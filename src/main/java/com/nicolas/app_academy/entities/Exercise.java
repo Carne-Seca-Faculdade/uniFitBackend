@@ -13,12 +13,15 @@ import lombok.Data;
 @Entity
 @Table(name = "tb_exercise")
 public class Exercise {
+  
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String exerciseName;
+  private String exerciseDescription;
   private LocalDateTime exerciseWasPerformedAt;
   private Integer seriesQuantity;
   private Integer repetitionsQuantity;
   private Integer weightUsed;
+  private Integer restTime;
 }
