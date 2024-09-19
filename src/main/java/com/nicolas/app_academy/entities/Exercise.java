@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ import lombok.Data;
 @Entity
 @Table(name = "tb_exercise")
 public class Exercise {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -24,4 +25,10 @@ public class Exercise {
   private Integer repetitionsQuantity;
   private Integer weightUsed;
   private Integer restTime;
+
+  @ManyToOne
+  private TrainingPlans trainingPlans;
+
+  @ManyToOne
+  private Progress progress;
 }
