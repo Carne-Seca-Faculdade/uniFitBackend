@@ -1,5 +1,6 @@
 package com.nicolas.app_academy.services;
 
+import org.apache.commons.mail.EmailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class UserService {
     @Autowired
     private TrainingPlansRepository trainingPlansRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public UserDTO criarUser(UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
@@ -32,6 +36,17 @@ public class UserService {
         user.setObjective(userDTO.getObjective());
 
         User userSave = userRepository.save(user);
+
+        String imcResult = calcularIMC(userSave.getId());
+
+        String healthStatus = determinarEstadoDeSaude(imcResult);
+        String emailContent = "Olá " + userSave.getName() + ",\n\nSeu IMC é: " + imcResult + ".\n" + healthStatus;
+
+        try {
+            emailService.sendEmail(userSave.getEmail(), "Seu IMC e Estado de Saúde", emailContent);
+        } catch (EmailException e) {
+            System.err.println("Erro ao enviar e-mail: " + e.getMessage());
+        }
 
         return new UserDTO(userSave);
     }
@@ -90,4 +105,24 @@ public class UserService {
         }
         userRepository.deleteById(userId);
     }
+
+    public String determinarEstadoDeSaude(String imcValue) {
+        try {
+            String imcFormatted = imcValue.replace(",", ".").trim();
+            double imc = Double.parseDouble(imcFormatted);
+
+            if (imc < 18.5) {
+                return "Você está abaixo do peso.";
+            } else if (imc >= 18.5 && imc < 24.9) {
+                return "Você está com peso normal.";
+            } else if (imc >= 25 && imc < 29.9) {
+                return "Você está com sobrepeso.";
+            } else {
+                return "Você está com obesidade.";
+            }
+        } catch (NumberFormatException e) {
+            return "Valor de IMC inválido.";
+        }
+    }
+
 }

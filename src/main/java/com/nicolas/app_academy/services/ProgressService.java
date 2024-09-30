@@ -3,12 +3,15 @@ package com.nicolas.app_academy.services;
 import com.nicolas.app_academy.dto.ProgressDTO;
 import com.nicolas.app_academy.entities.BodyMeasurements;
 import com.nicolas.app_academy.entities.Progress;
+import com.nicolas.app_academy.entities.User;
 import com.nicolas.app_academy.repositories.BodyMeasurementsRepository;
 import com.nicolas.app_academy.repositories.ProgressRepository;
+import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +24,18 @@ public class ProgressService {
   @Autowired
   private BodyMeasurementsRepository bodyMeasurementsRepository;
 
-  public ProgressDTO criarProgress(ProgressDTO progressDTO) {
+  @Autowired
+  private UserRepository userRepository;
+
+  public ProgressDTO criarProgress(ProgressDTO progressDTO, List<Long> userIds) {
+    List<User> user = userRepository.findAllById(userIds);
+    LocalDateTime hoje = LocalDateTime.now();
+    List<Progress> registrosHoje = progressRepository.findByUsersAndMonitoringStartedAt(user, hoje.toLocalDate());
+
+    if (!registrosHoje.isEmpty()) {
+      throw new IllegalArgumentException("Você ja registrou seu progresso hoje.");
+    }
+
     Progress progress = new Progress();
     progress.setMonitoringStartedAt(progressDTO.getMonitoringStartedAt());
     progress.setBodyWeight(progressDTO.getBodyWeight());
@@ -32,7 +46,7 @@ public class ProgressService {
           .orElseThrow(() -> new ResourceNotFoundException("Medidas corporais nao encontradas"));
       progress.setBodyMeasurements(existsBodyMeasurements);
     }
-
+    progress.setUsers(user);
     Progress savedProgress = progressRepository.save(progress);
     return new ProgressDTO(savedProgress);
   }
