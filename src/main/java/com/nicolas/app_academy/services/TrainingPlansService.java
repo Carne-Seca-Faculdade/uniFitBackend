@@ -13,8 +13,10 @@ import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.entities.Exercise;
 import com.nicolas.app_academy.entities.TrainingPlans;
+import com.nicolas.app_academy.entities.User;
 import com.nicolas.app_academy.repositories.ExerciseRepository;
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
+import com.nicolas.app_academy.repositories.UserRepository;
 
 @Service
 public class TrainingPlansService {
@@ -25,11 +27,32 @@ public class TrainingPlansService {
   @Autowired
   private ExerciseRepository exerciseRepository;
 
-  public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO) {
+  @Autowired
+  private UserRepository userRepository;
+
+  public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO, List<Long> userIds) {
+    List<User> users = userRepository.findAllById(userIds);
+
+    if (users.size() != userIds.size()) {
+      throw new ResourceNotFoundException("Um ou mais usuários não foram encontrados.");
+    }
+
+    for (User user : users) {
+      if (user.getTrainingPlans().size() >= 3) {
+        throw new IllegalArgumentException("Usuario " + user.getName() + " ja possui 3 planos de treino ativos.");
+      }
+    }
+
     TrainingPlans trainingPlan = new TrainingPlans();
     trainingPlan.setPlanName(trainingPlanDTO.getPlanName());
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());
     trainingPlan.setDifficultyStatus(trainingPlanDTO.getDifficultyStatus());
+
+    if (!users.isEmpty()) {
+      trainingPlan.setUsers(users);
+    } else {
+      trainingPlan.setUsers(new ArrayList<>());
+    }
 
     List<Exercise> exercises = new ArrayList<>();
 
@@ -44,6 +67,11 @@ public class TrainingPlansService {
     }
 
     TrainingPlans trainingPlanSaved = trainingPlansRepository.save(trainingPlan);
+
+    for (User user : users) {
+      user.getTrainingPlans().add(trainingPlanSaved);
+      userRepository.save(user);
+    }
 
     if (trainingPlanDTO.getNewExercises() != null && !trainingPlanDTO.getNewExercises().isEmpty()) {
       for (ExerciseDTO newExerciseDTO : trainingPlanDTO.getNewExercises()) {

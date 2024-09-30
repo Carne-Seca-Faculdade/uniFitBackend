@@ -27,7 +27,7 @@ public class TrainingPlansController {
   @PostMapping("/save")
   public ResponseEntity<TrainingPlansDTO> criarPlano(@RequestBody TrainingPlansDTO trainingPlanDTO) {
     try {
-      TrainingPlansDTO createdPlan = trainingPlansService.criarPlano(trainingPlanDTO);
+      TrainingPlansDTO createdPlan = trainingPlansService.criarPlano(trainingPlanDTO, trainingPlanDTO.getUserIds());
       return ResponseEntity.status(HttpStatus.CREATED).body(createdPlan);
     } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -54,7 +54,7 @@ public class TrainingPlansController {
     try {
       TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO);
       return ResponseEntity.status(HttpStatus.OK).body(updatedPlan);
-    } catch (ResourceNotFoundException e) {
+    } catch (ResourceNotFoundException e) { 
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
