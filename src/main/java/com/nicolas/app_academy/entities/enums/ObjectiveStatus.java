@@ -1,6 +1,6 @@
 package com.nicolas.app_academy.entities.enums;
 
 public enum ObjectiveStatus {
-  WEIGHT_LOSS,
+  LOSS_WEIGHT,
   MASS_GAIN;
 }

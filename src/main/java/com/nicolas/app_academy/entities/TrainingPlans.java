@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.nicolas.app_academy.entities.enums.planDifficultyStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,9 +25,11 @@ public class TrainingPlans {
   private Long id;
   private String planName;
   private String planDescription;
+
+  @Enumerated
   private planDifficultyStatus difficultyStatus;
 
-  @OneToMany(mappedBy = "trainingPlans")
+  @OneToMany(mappedBy = "trainingPlans", cascade = CascadeType.ALL)
   private List<Exercise> exerciseList;
 
   @ManyToMany(mappedBy = "trainingPlans")
