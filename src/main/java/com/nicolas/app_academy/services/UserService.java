@@ -1,6 +1,5 @@
 package com.nicolas.app_academy.services;
 
-import org.apache.commons.mail.EmailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

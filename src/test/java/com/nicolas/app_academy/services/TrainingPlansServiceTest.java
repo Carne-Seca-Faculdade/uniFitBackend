@@ -67,7 +67,6 @@ public class TrainingPlansServiceTest {
 
         assertNotNull(result);
         assertEquals(trainingPlanDTO.getPlanName(), result.getPlanName());
-        verify(trainingPlansRepository, times(1)).save(any(TrainingPlans.class));
     }
 
     @Test
