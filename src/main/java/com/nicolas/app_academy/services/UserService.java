@@ -23,9 +23,6 @@ public class UserService {
     @Autowired
     private TrainingPlansRepository trainingPlansRepository;
 
-    @Autowired
-    private EmailService emailService;
-
     public UserDTO criarUser(UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
@@ -36,18 +33,6 @@ public class UserService {
         user.setObjective(userDTO.getObjective());
 
         User userSave = userRepository.save(user);
-
-        String imcResult = calcularIMC(userSave.getId());
-
-        String healthStatus = determinarEstadoDeSaude(imcResult);
-        String emailContent = "Olá " + userSave.getName() + ",\n\nSeu IMC é: " + imcResult + ".\n" + healthStatus;
-
-        try {
-            emailService.sendEmail(userSave.getEmail(), "Seu IMC e Estado de Saúde", emailContent);
-        } catch (EmailException e) {
-            System.err.println("Erro ao enviar e-mail: " + e.getMessage());
-        }
-
         return new UserDTO(userSave);
     }
 
