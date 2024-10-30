@@ -150,7 +150,7 @@ public class UserServiceTest {
 
         String result = userService.calcularIMC(1L);
 
-        assertEquals("22.86", result);
+        assertEquals("22,86", result);
         verify(userRepository, times(1)).findById(1L);
     }
 
