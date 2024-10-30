@@ -107,8 +107,8 @@ public class BodyMeasurementsServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoUsuarioNaoEncontrado() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                bodyMeasurementsService.criarBodyMeasurements(1L, bodyMeasurementsDTO));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> bodyMeasurementsService.criarBodyMeasurements(1L, bodyMeasurementsDTO));
 
         assertEquals("Usuario nao encontrado", exception.getMessage());
     }
@@ -117,8 +117,8 @@ public class BodyMeasurementsServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoMedidasNaoEncontradasParaAtualizar() {
         when(bodyMeasurementsRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                bodyMeasurementsService.atualizarBodyMeasurements(1L, bodyMeasurementsDTO));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> bodyMeasurementsService.atualizarBodyMeasurements(1L, bodyMeasurementsDTO));
 
         assertEquals("Medidas corporais nao encontradas", exception.getMessage());
     }
@@ -127,8 +127,8 @@ public class BodyMeasurementsServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoMedidasNaoEncontradasParaDeletar() {
         when(bodyMeasurementsRepository.existsById(1L)).thenReturn(false);
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                bodyMeasurementsService.deletarBodyMeasurements(1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> bodyMeasurementsService.deletarBodyMeasurements(1L));
 
         assertEquals("Medidas corporais nao encontradas", exception.getMessage());
     }
