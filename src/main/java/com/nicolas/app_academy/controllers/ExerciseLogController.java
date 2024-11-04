@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/exercicioLog")
+@CrossOrigin({ "*" })
 public class ExerciseLogController {
 
   @Autowired
