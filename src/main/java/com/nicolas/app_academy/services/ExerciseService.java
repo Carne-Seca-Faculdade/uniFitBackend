@@ -32,7 +32,6 @@ public class ExerciseService {
     Exercise exercise = new Exercise();
     exercise.setExerciseName(exerciseDTO.getExerciseName());
     exercise.setExerciseDescription(exerciseDTO.getExerciseDescription());
-    exercise.setExerciseWasPerformedAt(LocalDateTime.now());
     exercise.setSeriesQuantity(exerciseDTO.getSeriesQuantity());
     exercise.setRepetitionsQuantity(exerciseDTO.getRepetitionsQuantity());
     exercise.setWeightUsed(exerciseDTO.getWeightUsed());

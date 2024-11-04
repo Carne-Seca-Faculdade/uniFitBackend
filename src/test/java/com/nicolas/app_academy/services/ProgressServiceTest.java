@@ -1,11 +1,8 @@
 package com.nicolas.app_academy.services;
 
-import com.nicolas.app_academy.dto.BodyMeasurementsDTO;
 import com.nicolas.app_academy.dto.ProgressDTO;
-import com.nicolas.app_academy.entities.BodyMeasurements;
 import com.nicolas.app_academy.entities.Progress;
 import com.nicolas.app_academy.entities.User;
-import com.nicolas.app_academy.repositories.BodyMeasurementsRepository;
 import com.nicolas.app_academy.repositories.ProgressRepository;
 import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
@@ -35,15 +32,11 @@ public class ProgressServiceTest {
     private ProgressRepository progressRepository;
 
     @MockBean
-    private BodyMeasurementsRepository bodyMeasurementsRepository;
-
-    @MockBean
     private UserRepository userRepository;
 
     private Progress progress;
     private ProgressDTO progressDTO;
     private User user;
-    private BodyMeasurements bodyMeasurements;
 
     @BeforeEach
     public void setUp() {
@@ -51,32 +44,24 @@ public class ProgressServiceTest {
         user.setId(1L);
         user.setName("Usuário Teste");
 
-        bodyMeasurements = new BodyMeasurements();
-        bodyMeasurements.setId(1L);
-
-        BodyMeasurementsDTO bodyMeasurementsDTO = new BodyMeasurementsDTO();
-        bodyMeasurementsDTO.setId(1L);
-
         progress = new Progress();
         progress.setMonitoringStartedAt(LocalDateTime.now());
         progress.setBodyWeight(75.0f);
-        progress.setBodyMeasurements(bodyMeasurements);
-        progress.setUsers(Collections.singletonList(user));
+        progress.setUser(user);
 
         progressDTO = new ProgressDTO();
         progressDTO.setMonitoringStartedAt(progress.getMonitoringStartedAt());
         progressDTO.setBodyWeight(progress.getBodyWeight());
-        progressDTO.setBodyMeasurements(bodyMeasurementsDTO);
     }
 
     @Test
     public void shouldCriarProgress() {
         when(userRepository.findAllById(anyList())).thenReturn(Collections.singletonList(user));
-        when(progressRepository.findByUsersAndMonitoringStartedAt(anyList(), any())).thenReturn(Collections.emptyList());
-        when(bodyMeasurementsRepository.findById(1L)).thenReturn(Optional.of(bodyMeasurements));
+        when(progressRepository.findByUserAndMonitoringStartedAt(user, any()))
+                .thenReturn(Collections.emptyList());
         when(progressRepository.save(any(Progress.class))).thenReturn(progress);
 
-        ProgressDTO result = progressService.criarProgress(progressDTO, Collections.singletonList(1L));
+        ProgressDTO result = progressService.criarProgress(progressDTO, 1L);
 
         assertNotNull(result);
         assertEquals(progressDTO.getBodyWeight(), result.getBodyWeight());
@@ -86,10 +71,11 @@ public class ProgressServiceTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionQuandoProgressoJaRegistradoHoje() {
         when(userRepository.findAllById(anyList())).thenReturn(Collections.singletonList(user));
-        when(progressRepository.findByUsersAndMonitoringStartedAt(anyList(), any())).thenReturn(Collections.singletonList(progress));
+        when(progressRepository.findByUserAndMonitoringStartedAt(user, any()))
+                .thenReturn(Collections.singletonList(progress));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                progressService.criarProgress(progressDTO, Collections.singletonList(1L)));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> progressService.criarProgress(progressDTO, 1L));
 
         assertEquals("Você ja registrou seu progresso hoje.", exception.getMessage());
     }
@@ -109,7 +95,6 @@ public class ProgressServiceTest {
     @Test
     public void shouldAtualizarProgress() {
         when(progressRepository.findById(1L)).thenReturn(Optional.of(progress));
-        when(bodyMeasurementsRepository.findById(1L)).thenReturn(Optional.of(bodyMeasurements));
         when(progressRepository.save(any(Progress.class))).thenReturn(progress);
 
         ProgressDTO result = progressService.atualizarProgress(1L, progressDTO);
@@ -124,21 +109,10 @@ public class ProgressServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoProgressoNaoEncontradoParaAtualizar() {
         when(progressRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                progressService.atualizarProgress(1L, progressDTO));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> progressService.atualizarProgress(1L, progressDTO));
 
         assertEquals("Progresso nao encontrado", exception.getMessage());
-    }
-
-    @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoMedidasCorporaisNaoEncontradas() {
-        when(progressRepository.findById(1L)).thenReturn(Optional.of(progress));
-        when(bodyMeasurementsRepository.findById(1L)).thenReturn(Optional.empty());
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                progressService.atualizarProgress(1L, progressDTO));
-
-        assertEquals("Medidas corporais nao encontradas", exception.getMessage());
     }
 
     @Test
@@ -154,8 +128,8 @@ public class ProgressServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoProgressoNaoEncontradoParaDeletar() {
         when(progressRepository.existsById(1L)).thenReturn(false);
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                progressService.deletarProgress(1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> progressService.deletarProgress(1L));
 
         assertEquals("Progresso nao encontrado", exception.getMessage());
     }

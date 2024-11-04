@@ -23,10 +23,9 @@ public class UserDTO implements Serializable {
   private ObjectiveStatus objective;
   private ProgressDTO progress;
   private List<Long> trainingPlansIds;
-  private BodyMeasurementsDTO bodyMeasurements;
 
   public UserDTO(Long id, String name, String email, Integer age, Float weight, Float height, ObjectiveStatus objective,
-      ProgressDTO progress, List<Long> trainingPlansIds, BodyMeasurementsDTO bodyMeasurements) {
+      ProgressDTO progress, List<Long> trainingPlansIds) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -36,7 +35,6 @@ public class UserDTO implements Serializable {
     this.objective = objective;
     this.progress = progress;
     this.trainingPlansIds = trainingPlansIds;
-    this.bodyMeasurements = bodyMeasurements;
   }
 
   public UserDTO(User user) {
@@ -45,7 +43,6 @@ public class UserDTO implements Serializable {
         user.getProgress() != null ? new ProgressDTO(user.getProgress()) : null,
         user.getTrainingPlans() != null
             ? user.getTrainingPlans().stream().map(TrainingPlans::getId).collect(Collectors.toList())
-            : null,
-        user.getBodyMeasurements() != null ? new BodyMeasurementsDTO(user.getBodyMeasurements()) : null);
+            : null);
   }
 }
