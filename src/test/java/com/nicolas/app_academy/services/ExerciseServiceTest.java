@@ -53,7 +53,6 @@ class ExerciseServiceTest {
         exercise.setId(1L);
         exercise.setExerciseName("Push Up");
         exercise.setExerciseDescription("An upper body exercise");
-        exercise.setExerciseWasPerformedAt(LocalDateTime.now());
         exercise.setSeriesQuantity(3);
         exercise.setRepetitionsQuantity(10);
         exercise.setWeightUsed(10);

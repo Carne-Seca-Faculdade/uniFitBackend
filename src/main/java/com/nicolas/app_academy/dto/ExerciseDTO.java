@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import com.nicolas.app_academy.entities.Exercise;
 
@@ -14,7 +13,6 @@ public class ExerciseDTO implements Serializable {
   private Long id;
   private String exerciseName;
   private String exerciseDescription;
-  private LocalDateTime exerciseWasPerformedAt;
   private Integer seriesQuantity;
   private Integer repetitionsQuantity;
   private Integer weightUsed;
@@ -26,7 +24,6 @@ public class ExerciseDTO implements Serializable {
     this.id = exercise.getId();
     this.exerciseName = exercise.getExerciseName();
     this.exerciseDescription = exercise.getExerciseDescription();
-    this.exerciseWasPerformedAt = exercise.getExerciseWasPerformedAt();
     this.seriesQuantity = exercise.getSeriesQuantity();
     this.repetitionsQuantity = exercise.getRepetitionsQuantity();
     this.weightUsed = exercise.getWeightUsed();

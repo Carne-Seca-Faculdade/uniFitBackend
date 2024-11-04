@@ -1,7 +1,11 @@
 package com.nicolas.app_academy.controllers;
 
 import com.nicolas.app_academy.dto.ProgressDTO;
+import com.nicolas.app_academy.entities.Progress;
+import com.nicolas.app_academy.entities.User;
+import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.ProgressService;
+import com.nicolas.app_academy.services.UserService;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +21,9 @@ public class ProgressController {
   @Autowired
   private ProgressService progressService;
 
-  @PostMapping
+  @PostMapping("/save/{userId}")
   public ResponseEntity<ProgressDTO> criarProgress(@RequestBody ProgressDTO progressDTO,
-      @PathVariable List<Long> userId) {
+      @PathVariable Long userId) {
     try {
       ProgressDTO savedProgress = progressService.criarProgress(progressDTO, userId);
       return ResponseEntity.status(HttpStatus.CREATED).body(savedProgress);
