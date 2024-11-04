@@ -1,6 +1,7 @@
 package com.nicolas.app_academy.services;
 
 import com.nicolas.app_academy.dto.UserDTO;
+import com.nicolas.app_academy.dto.WeightDTO;
 import com.nicolas.app_academy.entities.TrainingPlans;
 import com.nicolas.app_academy.entities.User;
 import com.nicolas.app_academy.entities.enums.ObjectiveStatus;
@@ -39,22 +40,25 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        user = new User();
-        user.setId(1L);
-        user.setName("Usuário Teste");
-        user.setEmail("usuario@test.com");
-        user.setAge(25);
-        user.setWeight(70.0f);
-        user.setHeight(175.0f);
-        user.setObjective(ObjectiveStatus.LOSS_WEIGHT);
+        userDTO = new UserDTO();
+        userDTO.setId(1L);
+        userDTO.setName("Usuário Teste");
+        userDTO.setEmail("usuario@test.com");
+        userDTO.setAge(25);
+        userDTO.setHeight(175.0f);
+        userDTO.setObjective(ObjectiveStatus.LOSS_WEIGHT);
+
+        WeightDTO weightDTO = new WeightDTO();
+        weightDTO.setValue(70.0f);
+        userDTO.setWeight(weightDTO);
 
         userDTO = new UserDTO();
         userDTO.setName("Usuário Teste");
         userDTO.setEmail("usuario@test.com");
         userDTO.setAge(25);
-        userDTO.setWeight(70.0f);
         userDTO.setHeight(175.0f);
         userDTO.setObjective(ObjectiveStatus.LOSS_WEIGHT);
+        userDTO.setWeight(weightDTO);
     }
 
     @Test
@@ -66,6 +70,7 @@ public class UserServiceTest {
         assertNotNull(result);
         assertEquals(userDTO.getName(), result.getName());
         assertEquals(userDTO.getEmail(), result.getEmail());
+        assertEquals(userDTO.getWeight().getValue(), result.getWeight().getValue());
         verify(userRepository, times(1)).save(any(User.class));
     }
 
@@ -73,8 +78,7 @@ public class UserServiceTest {
     public void shouldThrowExceptionWhenCriarUserFails() {
         when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Erro ao criar usuário"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                userService.criarUser(userDTO));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.criarUser(userDTO));
 
         assertEquals("Erro ao criar usuário", exception.getMessage());
     }
@@ -88,6 +92,7 @@ public class UserServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(userDTO.getName(), result.get(0).getName());
+        assertEquals(userDTO.getWeight().getValue(), result.get(0).getWeight().getValue());
         verify(userRepository, times(1)).findAll();
     }
 
@@ -111,6 +116,7 @@ public class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(userDTO.getName(), result.getName());
+        assertEquals(userDTO.getWeight().getValue(), result.getWeight().getValue());
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).save(any(User.class));
     }
@@ -119,8 +125,8 @@ public class UserServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoAtualizarUserNaoEncontrado() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                userService.atualizarUser(1L, userDTO));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.atualizarUser(1L, userDTO));
 
         assertEquals("Usuario nao encontrado", exception.getMessage());
     }
@@ -138,8 +144,8 @@ public class UserServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoDeletarUserNaoEncontrado() {
         when(userRepository.existsById(1L)).thenReturn(false);
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                userService.deletarUser(1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.deletarUser(1L));
 
         assertEquals("Usuario nao encontrado", exception.getMessage());
     }
@@ -158,8 +164,8 @@ public class UserServiceTest {
     public void shouldThrowResourceNotFoundExceptionQuandoCalcularIMCUsuarioNaoEncontrado() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                userService.calcularIMC(1L));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.calcularIMC(1L));
 
         assertEquals("Usuario nao encontrado", exception.getMessage());
     }
@@ -169,8 +175,8 @@ public class UserServiceTest {
         user.setHeight(0.0f);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                userService.calcularIMC(1L));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.calcularIMC(1L));
 
         assertEquals("Altura precisa ser maior que zero", exception.getMessage());
     }
@@ -196,8 +202,8 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(trainingPlansRepository.findAllById(anyList())).thenReturn(Collections.emptyList());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                userService.setTrainingPlansForUser(1L, Collections.singletonList(1L)));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> userService.setTrainingPlansForUser(1L, Collections.singletonList(1L)));
 
         assertEquals("Nenhum plano de treino encontrado para os IDs fornecidos", exception.getMessage());
     }

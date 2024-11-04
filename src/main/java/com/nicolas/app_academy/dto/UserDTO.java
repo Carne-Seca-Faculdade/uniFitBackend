@@ -18,13 +18,14 @@ public class UserDTO implements Serializable {
   private String name;
   private String email;
   private Integer age;
-  private Float weight;
+  private WeightDTO weight;
   private Float height;
   private ObjectiveStatus objective;
   private ProgressDTO progress;
   private List<Long> trainingPlansIds;
 
-  public UserDTO(Long id, String name, String email, Integer age, Float weight, Float height, ObjectiveStatus objective,
+  public UserDTO(Long id, String name, String email, Integer age, WeightDTO weight, Float height,
+      ObjectiveStatus objective,
       ProgressDTO progress, List<Long> trainingPlansIds) {
     this.id = id;
     this.name = name;
@@ -38,11 +39,19 @@ public class UserDTO implements Serializable {
   }
 
   public UserDTO(User user) {
-    this(user.getId(), user.getName(), user.getEmail(), user.getAge(), user.getWeight(), user.getHeight(),
-        user.getObjective() != null ? user.getObjective() : null,
-        user.getProgress() != null ? new ProgressDTO(user.getProgress()) : null,
-        user.getTrainingPlans() != null
-            ? user.getTrainingPlans().stream().map(TrainingPlans::getId).collect(Collectors.toList())
-            : null);
+    this.id = user.getId();
+    this.name = user.getName();
+    this.email = user.getEmail();
+    this.age = user.getAge();
+
+    this.weight = user.getWeight() != null ? new WeightDTO(user.getWeight()) : null;
+
+    this.height = user.getHeight();
+    this.objective = user.getObjective();
+    this.progress = user.getProgress() != null ? new ProgressDTO(user.getProgress()) : null;
+
+    this.trainingPlansIds = user.getTrainingPlans() != null
+        ? user.getTrainingPlans().stream().map(TrainingPlans::getId).collect(Collectors.toList())
+        : null;
   }
 }

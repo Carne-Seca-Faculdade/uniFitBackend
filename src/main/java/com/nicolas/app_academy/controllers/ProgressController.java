@@ -1,11 +1,7 @@
 package com.nicolas.app_academy.controllers;
 
 import com.nicolas.app_academy.dto.ProgressDTO;
-import com.nicolas.app_academy.entities.Progress;
-import com.nicolas.app_academy.entities.User;
-import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.ProgressService;
-import com.nicolas.app_academy.services.UserService;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/progress")
+@CrossOrigin({ "*" })
 public class ProgressController {
 
   @Autowired

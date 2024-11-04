@@ -26,12 +26,14 @@ public class User {
   private String name;
   private String email;
   private Integer age;
-  private Float weight;
   private Float height;
   private ObjectiveStatus objective;
 
   @OneToOne(mappedBy = "user")
   private Progress progress;
+
+  @OneToOne(mappedBy = "user")
+  private Weight weight;
 
   @ManyToMany
   @JoinTable(name = "tb_user_trainingPlans", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "trainingPlans_id"))

@@ -1,6 +1,5 @@
 package com.nicolas.app_academy.entities;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Entity;
