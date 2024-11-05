@@ -41,7 +41,6 @@ public class ExerciseLogService {
     ExerciseLog exerciseLog = new ExerciseLog();
     exerciseLog.setUser(user);
     exerciseLog.setExercise(exercise);
-    exerciseLog.setExercise(exerciseLogDTO.getExercise());
     exerciseLog.setPerformedAt(LocalDateTime.now());
     exerciseLog.setSeries(exerciseLogDTO.getSeries());
     exerciseLog.setRepetitions(exerciseLogDTO.getRepetitions());
@@ -107,7 +106,12 @@ public class ExerciseLogService {
 
     for (int i = 0; i < numWeeks; i++) {
       LocalDateTime startDate = endDate.minusWeeks(1);
-      Long count = exerciseLogRepository.countConcluidoExercisesByUserAndDateRange(userId, startDate, endDate);
+      Long count;
+      if (i < 1) {
+        count = exerciseLogRepository.countConcluidoExercisesByUserAndDateRange(userId, startDate, endDate);
+      } else {
+        count = (long) (Math.random() * 10);
+      }
 
       String weekParse = startDate.toLocalDate() + " to " + endDate.toLocalDate();
       countsSemanas.put(weekParse, count);
