@@ -94,4 +94,12 @@ public class ExerciseService {
     }
     exerciseRepository.deleteById(exerciseId);
   }
+
+  public List<ExerciseDTO> getExercisesByIds(List<Long> ids) {
+    List<Exercise> exercises = exerciseRepository.findAllById(ids);
+    return exercises.stream()
+        .map(ExerciseDTO::new)
+        .collect(Collectors.toList());
+  }
+
 }

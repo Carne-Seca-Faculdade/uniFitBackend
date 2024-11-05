@@ -3,7 +3,6 @@ package com.nicolas.app_academy.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import com.nicolas.app_academy.entities.User;
 import com.nicolas.app_academy.entities.Weight;
 
 import lombok.Data;

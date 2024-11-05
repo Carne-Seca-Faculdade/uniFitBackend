@@ -2,8 +2,6 @@ package com.nicolas.app_academy.entities;
 
 import java.util.List;
 
-import com.nicolas.app_academy.entities.enums.ObjectiveStatus;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +25,6 @@ public class User {
   private String email;
   private Integer age;
   private Float height;
-  private ObjectiveStatus objective;
 
   @OneToOne(mappedBy = "user")
   private Progress progress;

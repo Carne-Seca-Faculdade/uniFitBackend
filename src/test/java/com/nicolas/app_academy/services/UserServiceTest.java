@@ -4,7 +4,6 @@ import com.nicolas.app_academy.dto.UserDTO;
 import com.nicolas.app_academy.dto.WeightDTO;
 import com.nicolas.app_academy.entities.TrainingPlans;
 import com.nicolas.app_academy.entities.User;
-import com.nicolas.app_academy.entities.enums.ObjectiveStatus;
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
 import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
@@ -46,7 +45,6 @@ public class UserServiceTest {
         userDTO.setEmail("usuario@test.com");
         userDTO.setAge(25);
         userDTO.setHeight(175.0f);
-        userDTO.setObjective(ObjectiveStatus.LOSS_WEIGHT);
 
         WeightDTO weightDTO = new WeightDTO();
         weightDTO.setValue(70.0f);
@@ -57,7 +55,6 @@ public class UserServiceTest {
         userDTO.setEmail("usuario@test.com");
         userDTO.setAge(25);
         userDTO.setHeight(175.0f);
-        userDTO.setObjective(ObjectiveStatus.LOSS_WEIGHT);
         userDTO.setWeight(weightDTO);
     }
 
