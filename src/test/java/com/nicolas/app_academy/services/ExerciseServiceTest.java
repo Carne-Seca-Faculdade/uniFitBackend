@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +52,6 @@ class ExerciseServiceTest {
         exercise.setId(1L);
         exercise.setExerciseName("Push Up");
         exercise.setExerciseDescription("An upper body exercise");
-        exercise.setExerciseWasPerformedAt(LocalDateTime.now());
         exercise.setSeriesQuantity(3);
         exercise.setRepetitionsQuantity(10);
         exercise.setWeightUsed(10);

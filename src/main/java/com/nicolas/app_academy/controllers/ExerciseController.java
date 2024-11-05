@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/exercicios")
+@CrossOrigin({ "*" })
 public class ExerciseController {
 
   @Autowired

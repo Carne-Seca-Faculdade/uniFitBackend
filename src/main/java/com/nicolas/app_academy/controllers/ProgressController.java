@@ -12,14 +12,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/progress")
+@CrossOrigin({ "*" })
 public class ProgressController {
 
   @Autowired
   private ProgressService progressService;
 
-  @PostMapping
+  @PostMapping("/save/{userId}")
   public ResponseEntity<ProgressDTO> criarProgress(@RequestBody ProgressDTO progressDTO,
-      @PathVariable List<Long> userId) {
+      @PathVariable Long userId) {
     try {
       ProgressDTO savedProgress = progressService.criarProgress(progressDTO, userId);
       return ResponseEntity.status(HttpStatus.CREATED).body(savedProgress);
