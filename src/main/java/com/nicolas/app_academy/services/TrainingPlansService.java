@@ -29,6 +29,9 @@ public class TrainingPlansService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private ExerciseService exerciseService;
+
   public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO, List<Long> userIds) {
     List<User> users = userRepository.findAllById(userIds);
 
@@ -45,7 +48,7 @@ public class TrainingPlansService {
     TrainingPlans trainingPlan = new TrainingPlans();
     trainingPlan.setPlanName(trainingPlanDTO.getPlanName());
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());
-    trainingPlan.setDifficultyStatus(trainingPlanDTO.getDifficultyStatus());
+    trainingPlan.setDuration(trainingPlanDTO.getDuration());
 
     if (!users.isEmpty()) {
       trainingPlan.setUsers(users);
@@ -106,9 +109,9 @@ public class TrainingPlansService {
 
     trainingPlan.setPlanName(trainingPlanDTO.getPlanName());
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());
-    trainingPlan.setDifficultyStatus(trainingPlanDTO.getDifficultyStatus());
-
-    List<Exercise> updatedExercises = new ArrayList<>();
+    trainingPlan.setDuration(trainingPlanDTO.getDuration());
+    
+    List<Exercise> updatedExercises = new ArrayList<>();  
 
     if (trainingPlanDTO.getExerciseIds() != null && !trainingPlanDTO.getExerciseIds().isEmpty()) {
       for (Long exerciseId : trainingPlanDTO.getExerciseIds()) {
@@ -147,4 +150,38 @@ public class TrainingPlansService {
     }
     trainingPlansRepository.deleteById(trainingPlanId);
   }
+
+  public ExerciseDTO addExerciseToTrainingPlan(Long trainingPlanId, ExerciseDTO exerciseDTO) {
+    TrainingPlans trainingPlan = trainingPlansRepository.findById(trainingPlanId)
+        .orElseThrow(() -> new ResourceNotFoundException("Plano de treino nao encontrado"));
+
+    Exercise newExercise = new Exercise();
+    newExercise.setExerciseName(exerciseDTO.getExerciseName());
+    newExercise.setExerciseDescription(exerciseDTO.getExerciseDescription());
+    newExercise.setSeriesQuantity(exerciseDTO.getSeriesQuantity());
+    newExercise.setRepetitionsQuantity(exerciseDTO.getRepetitionsQuantity());
+    newExercise.setWeightUsed(exerciseDTO.getWeightUsed());
+    newExercise.setRestTime(exerciseDTO.getRestTime());
+
+    newExercise.setTrainingPlans(trainingPlan);
+
+    exerciseRepository.save(newExercise);
+
+    trainingPlan.getExerciseList().add(newExercise);
+    trainingPlansRepository.save(trainingPlan);
+
+    return new ExerciseDTO(newExercise); 
+  }
+
+  public TrainingPlansDTO getTrainingPlanById(Long id) {
+    TrainingPlans trainingPlan = trainingPlansRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Plano de treino nao encontrado"));
+
+    List<ExerciseDTO> exercises = exerciseService.getExercisesByIds(trainingPlan.getExerciseIds());
+
+    TrainingPlansDTO trainingPlanDTO = new TrainingPlansDTO(trainingPlan);
+    trainingPlanDTO.setNewExercises(exercises);
+    return trainingPlanDTO;
+  }
+
 }

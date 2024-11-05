@@ -1,12 +1,10 @@
 package com.nicolas.app_academy.entities;
 
 import java.util.List;
-
-import com.nicolas.app_academy.entities.enums.planDifficultyStatus;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,13 +23,15 @@ public class TrainingPlans {
   private Long id;
   private String planName;
   private String planDescription;
-
-  @Enumerated
-  private planDifficultyStatus difficultyStatus;
+  private Integer duration;
 
   @OneToMany(mappedBy = "trainingPlans", cascade = CascadeType.ALL)
   private List<Exercise> exerciseList;
 
   @ManyToMany(mappedBy = "trainingPlans")
   private List<User> users;
+
+  public List<Long> getExerciseIds() {
+    return exerciseList.stream().map(Exercise::getId).collect(Collectors.toList());
+  }
 }
