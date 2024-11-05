@@ -8,8 +8,8 @@ import com.nicolas.app_academy.entities.User;
 public class ExerciseLogDTO {
 
   private Long id;
-  private User user;
-  private Exercise exercise;
+  private Long userId;
+  private Long exerciseId;
   private LocalDateTime performedAt;
   private Integer series;
   private Integer repetitions;
@@ -22,8 +22,8 @@ public class ExerciseLogDTO {
 
   public ExerciseLogDTO(ExerciseLog exerciseLog) {
     this.id = exerciseLog.getId();
-    this.user = exerciseLog.getUser();
-    this.exercise = exerciseLog.getExercise();
+    this.userId = exerciseLog.getUser().getId();
+    this.exerciseId = exerciseLog.getExercise().getId();
     this.performedAt = exerciseLog.getPerformedAt();
     this.series = exerciseLog.getSeries();
     this.repetitions = exerciseLog.getRepetitions();
@@ -40,20 +40,20 @@ public class ExerciseLogDTO {
     this.id = id;
   }
 
-  public User getUser() {
-    return user;
+  public Long getUserId() {
+    return userId;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+  public void setUserId(Long userId) {
+    this.userId = userId;
   }
 
-  public Exercise getExercise() {
-    return exercise;
+  public Long getExerciseId() {
+    return exerciseId;
   }
 
-  public void setExercise(Exercise exercise) {
-    this.exercise = exercise;
+  public void setExercise(Long exerciseId) {
+    this.exerciseId = exerciseId;
   }
 
   public LocalDateTime getPerformedAt() {
