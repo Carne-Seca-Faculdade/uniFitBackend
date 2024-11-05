@@ -1,6 +1,5 @@
 package com.nicolas.app_academy.services;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,6 @@ public class ExerciseService {
     Exercise exercise = new Exercise();
     exercise.setExerciseName(exerciseDTO.getExerciseName());
     exercise.setExerciseDescription(exerciseDTO.getExerciseDescription());
-    exercise.setExerciseWasPerformedAt(LocalDateTime.now());
     exercise.setSeriesQuantity(exerciseDTO.getSeriesQuantity());
     exercise.setRepetitionsQuantity(exerciseDTO.getRepetitionsQuantity());
     exercise.setWeightUsed(exerciseDTO.getWeightUsed());

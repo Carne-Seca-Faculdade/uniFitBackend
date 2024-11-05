@@ -34,7 +34,7 @@ class ProgressControllerTest {
 
   @Test
   void criarProgress_Success() {
-    List<Long> userId = List.of(1L);
+    Long userId = 1L;
     when(progressService.criarProgress(progressDTO, userId)).thenReturn(progressDTO);
 
     ResponseEntity<ProgressDTO> response = progressController.criarProgress(progressDTO, userId);

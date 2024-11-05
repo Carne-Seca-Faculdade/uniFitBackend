@@ -11,6 +11,5 @@ import com.nicolas.app_academy.entities.User;
 
 @Repository
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
-  List<Progress> findByUsersAndMonitoringStartedAt(List<User> user, LocalDate monitoringStartedAt);
-
+  List<Progress> findByUserAndMonitoringStartedAt(User user, LocalDate monitoringStartedAt);
 }

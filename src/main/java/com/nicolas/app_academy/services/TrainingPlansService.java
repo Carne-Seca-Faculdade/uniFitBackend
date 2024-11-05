@@ -3,7 +3,6 @@ package com.nicolas.app_academy.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ public class TrainingPlansService {
     List<User> users = userRepository.findAllById(userIds);
 
     if (users.size() != userIds.size()) {
-      throw new ResourceNotFoundException("Um ou mais usuários não foram encontrados.");
+      throw new ResourceNotFoundException("Um ou mais usuarios nao foram encontrados.");
     }
 
     for (User user : users) {
@@ -82,7 +81,6 @@ public class TrainingPlansService {
         newExercise.setRepetitionsQuantity(newExerciseDTO.getRepetitionsQuantity());
         newExercise.setWeightUsed(newExerciseDTO.getWeightUsed());
         newExercise.setRestTime(newExerciseDTO.getRestTime());
-        newExercise.setExerciseWasPerformedAt(LocalDateTime.now());
         newExercise.setTrainingPlans(trainingPlanSaved);
 
         exercises.add(newExercise);
@@ -130,7 +128,6 @@ public class TrainingPlansService {
         newExercise.setRepetitionsQuantity(newExerciseDTO.getRepetitionsQuantity());
         newExercise.setWeightUsed(newExerciseDTO.getWeightUsed());
         newExercise.setRestTime(newExerciseDTO.getRestTime());
-        newExercise.setExerciseWasPerformedAt(LocalDateTime.now());
         newExercise.setTrainingPlans(trainingPlan);
 
         updatedExercises.add(newExercise);

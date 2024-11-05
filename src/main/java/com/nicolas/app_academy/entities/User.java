@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -27,19 +26,16 @@ public class User {
   private String name;
   private String email;
   private Integer age;
-  private Float weight;
   private Float height;
   private ObjectiveStatus objective;
 
-  @ManyToOne
-  @JoinColumn(name = "progress_id")
+  @OneToOne(mappedBy = "user")
   private Progress progress;
+
+  @OneToOne(mappedBy = "user")
+  private Weight weight;
 
   @ManyToMany
   @JoinTable(name = "tb_user_trainingPlans", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "trainingPlans_id"))
   private List<TrainingPlans> trainingPlans;
-
-  @OneToOne
-  @JoinColumn(name = "bodyMeasurements_id")
-  private BodyMeasurements bodyMeasurements;
 }
