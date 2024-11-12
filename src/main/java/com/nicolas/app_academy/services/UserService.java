@@ -39,7 +39,6 @@ public class UserService {
         user.setEmail(userDTO.getEmail());
         user.setAge(userDTO.getAge());
         user.setHeight(userDTO.getHeight());
-        user.setObjective(userDTO.getObjective());
 
         User userSave = userRepository.save(user);
 
@@ -101,7 +100,6 @@ public class UserService {
         user.setAge(userDTO.getAge());
         user.setWeight(user.getWeight());
         user.setHeight(userDTO.getHeight());
-        user.setObjective(userDTO.getObjective());
         if (userDTO.getWeight() != null) {
             if (user.getWeight() == null) {
                 Weight weight = new Weight();

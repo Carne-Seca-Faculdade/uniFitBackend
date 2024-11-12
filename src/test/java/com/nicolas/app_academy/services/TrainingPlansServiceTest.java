@@ -13,7 +13,6 @@ import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.entities.Exercise;
 import com.nicolas.app_academy.entities.TrainingPlans;
 import com.nicolas.app_academy.entities.User;
-import com.nicolas.app_academy.entities.enums.planDifficultyStatus;
 import com.nicolas.app_academy.repositories.ExerciseRepository;
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
 import com.nicolas.app_academy.repositories.UserRepository;
@@ -56,12 +55,10 @@ class TrainingPlansServiceTest {
         trainingPlans = new TrainingPlans();
         trainingPlans.setPlanName("Full Body Workout");
         trainingPlans.setPlanDescription("A comprehensive workout plan.");
-        trainingPlans.setDifficultyStatus(planDifficultyStatus.INTERMEDIATE);
     }
 
     @Test
     void testCriarPlano_Success() {
-        // Prepare data
         List<Long> userIds = List.of(1L);
         ExerciseDTO exerciseDTO = new ExerciseDTO();
         exerciseDTO.setExerciseName("Squat");
@@ -74,7 +71,6 @@ class TrainingPlansServiceTest {
         TrainingPlansDTO trainingPlanDTO = new TrainingPlansDTO();
         trainingPlanDTO.setPlanName("Plan 1");
         trainingPlanDTO.setPlanDescription("Description 1");
-        trainingPlanDTO.setDifficultyStatus(planDifficultyStatus.INTERMEDIATE);
         trainingPlanDTO.setNewExercises(List.of(exerciseDTO));
         trainingPlanDTO.setExerciseIds(List.of(1L));
 
@@ -106,7 +102,6 @@ class TrainingPlansServiceTest {
         TrainingPlansDTO trainingPlanDTO = new TrainingPlansDTO();
         trainingPlanDTO.setPlanName("Updated Plan");
         trainingPlanDTO.setPlanDescription("Updated Description");
-        trainingPlanDTO.setDifficultyStatus(planDifficultyStatus.BEGINNER);
 
         when(trainingPlansRepository.findById(trainingPlanId)).thenReturn(Optional.of(trainingPlans));
         when(trainingPlansRepository.save(any())).thenReturn(trainingPlans);

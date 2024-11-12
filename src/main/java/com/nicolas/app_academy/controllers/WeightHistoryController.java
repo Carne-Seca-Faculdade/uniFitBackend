@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("weight-history")
+@CrossOrigin({ "*" })
 public class WeightHistoryController {
 
   @Autowired

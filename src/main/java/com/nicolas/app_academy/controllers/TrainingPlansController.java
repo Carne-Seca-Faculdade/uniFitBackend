@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.services.TrainingPlansService;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/planos-treino")
-@CrossOrigin({"*"})
+@CrossOrigin({ "*" })
 public class TrainingPlansController {
   @Autowired
   private TrainingPlansService trainingPlansService;
@@ -56,7 +57,7 @@ public class TrainingPlansController {
     try {
       TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO);
       return ResponseEntity.status(HttpStatus.OK).body(updatedPlan);
-    } catch (ResourceNotFoundException e) { 
+    } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -73,5 +74,20 @@ public class TrainingPlansController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
+  }
+
+  @PostMapping("/{trainingPlanId}/exercise")
+  public ResponseEntity<ExerciseDTO> addExercise(
+      @PathVariable Long trainingPlanId,
+      @RequestBody ExerciseDTO exerciseDTO) {
+
+    ExerciseDTO createdExercise = trainingPlansService.addExerciseToTrainingPlan(trainingPlanId, exerciseDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdExercise);
+  }
+
+  @GetMapping("/{id}/exercise")
+  public ResponseEntity<TrainingPlansDTO> getTrainingPlan(@PathVariable Long id) {
+    TrainingPlansDTO trainingPlan = trainingPlansService.getTrainingPlanById(id);
+    return ResponseEntity.ok(trainingPlan);
   }
 }
