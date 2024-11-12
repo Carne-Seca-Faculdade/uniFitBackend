@@ -1,9 +1,7 @@
 package com.nicolas.app_academy.dto;
 
 import java.time.LocalDateTime;
-import com.nicolas.app_academy.entities.Exercise;
 import com.nicolas.app_academy.entities.ExerciseLog;
-import com.nicolas.app_academy.entities.User;
 
 public class ExerciseLogDTO {
 
@@ -16,7 +14,7 @@ public class ExerciseLogDTO {
   private Integer weight;
   private Integer duration;
   private String status;
-
+  
   public ExerciseLogDTO() {
   }
 
