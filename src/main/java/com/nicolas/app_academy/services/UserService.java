@@ -11,6 +11,7 @@ import com.nicolas.app_academy.entities.WeightHistory;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
@@ -56,6 +57,12 @@ public class UserService {
         }
 
         return new UserDTO(userSave);
+    }
+
+    public UserDTO findUserById(Long id) {
+        return userRepository.findById(id).map(user -> {
+            return new UserDTO(user);
+        }).orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado"));
     }
 
     public List<UserDTO> listarUsers() {

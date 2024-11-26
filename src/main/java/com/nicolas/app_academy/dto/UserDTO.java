@@ -16,28 +16,20 @@ public class UserDTO implements Serializable {
   private Long id;
   private String name;
   private String email;
+  private String password;
+  private String role;
   private Integer age;
   private WeightDTO weight;
   private Float height;
   private ProgressDTO progress;
   private List<Long> trainingPlansIds;
 
-  public UserDTO(Long id, String name, String email, Integer age, WeightDTO weight, Float height,
-      ProgressDTO progress, List<Long> trainingPlansIds) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.age = age;
-    this.weight = weight;
-    this.height = height;
-    this.progress = progress;
-    this.trainingPlansIds = trainingPlansIds;
-  }
-
   public UserDTO(User user) {
     this.id = user.getId();
     this.name = user.getName();
     this.email = user.getEmail();
+    this.password = user.getPassword();
+    this.role = user.getRole();
     this.age = user.getAge();
 
     this.weight = user.getWeight() != null ? new WeightDTO(user.getWeight()) : null;
