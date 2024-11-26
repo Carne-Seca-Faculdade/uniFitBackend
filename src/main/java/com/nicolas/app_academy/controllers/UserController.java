@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,19 +29,7 @@ public class UserController {
 
   @Autowired
   private UserService userService;
-
-  @PostMapping("/save")
-  public ResponseEntity<UserDTO> criarUser(@RequestBody UserDTO userDTO) {
-    try {
-      UserDTO createUser = userService.criarUser(userDTO);
-      return ResponseEntity.status(HttpStatus.CREATED).body(createUser);
-    } catch (ResourceNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
-  }
-
+  
   @GetMapping
   public ResponseEntity<List<UserDTO>> listarUsers() {
     try {
@@ -50,6 +39,16 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
+  @GetMapping("/{userId}")
+  public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId) {
+    try {
+      UserDTO user = userService.findUserById(userId);
+      return ResponseEntity.status(HttpStatus.OK).body(user);
+    } catch (ResourceNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
   }
 

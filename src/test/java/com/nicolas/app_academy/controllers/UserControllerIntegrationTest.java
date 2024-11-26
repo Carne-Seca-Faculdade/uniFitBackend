@@ -2,7 +2,6 @@ package com.nicolas.app_academy.controllers;
 
 import com.nicolas.app_academy.dto.UserDTO;
 import com.nicolas.app_academy.services.UserService;
-import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,18 +37,6 @@ public class UserControllerIntegrationTest {
     userDTO = new UserDTO();
     userDTO.setName("John Doe");
     userDTO.setEmail("john.doe@example.com");
-  }
-
-  @Test
-  void criarUser_ShouldReturnCreatedUser() {
-    when(userService.criarUser(any(UserDTO.class))).thenReturn(userDTO);
-
-    ResponseEntity<UserDTO> response = userController.criarUser(userDTO);
-
-    assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertNotNull(response.getBody());
-    assertEquals("John Doe", response.getBody().getName());
-    assertEquals("john.doe@example.com", response.getBody().getEmail());
   }
 
   @Test
@@ -101,16 +88,6 @@ public class UserControllerIntegrationTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     verify(userService).deletarUser(1L);
-  }
-
-  @Test
-  void criarUser_ShouldReturnNotFound_WhenResourceNotFoundExceptionThrown() {
-    when(userService.criarUser(any(UserDTO.class))).thenThrow(new ResourceNotFoundException("Resource not found"));
-
-    ResponseEntity<UserDTO> response = userController.criarUser(userDTO);
-
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertNull(response.getBody());
   }
 
   @Test

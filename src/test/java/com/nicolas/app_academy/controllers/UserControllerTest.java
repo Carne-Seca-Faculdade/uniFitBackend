@@ -35,17 +35,6 @@ class UserControllerTest {
   }
 
   @Test
-  void criarUser_Success() {
-    when(userService.criarUser(userDTO)).thenReturn(userDTO);
-
-    ResponseEntity<UserDTO> response = userController.criarUser(userDTO);
-
-    assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertEquals(userDTO, response.getBody());
-    verify(userService, times(1)).criarUser(userDTO);
-  }
-
-  @Test
   void listarUsers_Success() {
     List<UserDTO> users = new ArrayList<>();
     users.add(userDTO);
@@ -113,17 +102,6 @@ class UserControllerTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     verify(userService, times(1)).deletarUser(userId);
-  }
-
-  @Test
-  void criarUser_NotFound() {
-    when(userService.criarUser(userDTO)).thenThrow(new ResourceNotFoundException(null));
-
-    ResponseEntity<UserDTO> response = userController.criarUser(userDTO);
-
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertNull(response.getBody());
-    verify(userService, times(1)).criarUser(userDTO);
   }
 
   @Test
