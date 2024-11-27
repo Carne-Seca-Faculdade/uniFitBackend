@@ -29,7 +29,7 @@ public class UserController {
 
   @Autowired
   private UserService userService;
-  
+
   @GetMapping
   public ResponseEntity<List<UserDTO>> listarUsers() {
     try {
