@@ -1,10 +1,13 @@
 package com.nicolas.app_academy.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,13 +15,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nicolas.app_academy.auth.utils.JwtUtils;
 import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.services.TrainingPlansService;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/planos-treino")
@@ -27,15 +35,30 @@ public class TrainingPlansController {
   @Autowired
   private TrainingPlansService trainingPlansService;
 
+  @Autowired
+  private JwtUtils jwtUtils;
+
+  @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
   @PostMapping("/save")
-  public ResponseEntity<TrainingPlansDTO> criarPlano(@RequestBody TrainingPlansDTO trainingPlanDTO) {
+  public ResponseEntity<?> createTrainingPlan(
+      @RequestBody TrainingPlansDTO trainingPlansDTO,
+      @RequestHeader("Authorization") String authorizationHeader) {
+
     try {
-      TrainingPlansDTO createdPlan = trainingPlansService.criarPlano(trainingPlanDTO, trainingPlanDTO.getUserIds());
-      return ResponseEntity.status(HttpStatus.CREATED).body(createdPlan);
-    } catch (ResourceNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      String token = authorizationHeader.replace("Bearer ", "");
+      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
+      Long userId = Long.parseLong(userIdFromToken);
+
+      TrainingPlansDTO newPlan = trainingPlansService.criarPlano(trainingPlansDTO, userId);
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(newPlan);
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "Ocorreu um erro inesperado."));
     }
   }
 
@@ -52,27 +75,44 @@ public class TrainingPlansController {
   }
 
   @PutMapping("/{trainingPlanId}")
-  public ResponseEntity<TrainingPlansDTO> atualizarPlano(@PathVariable Long trainingPlanId,
-      @RequestBody TrainingPlansDTO trainingPlansDTO) {
+  public ResponseEntity<?> atualizarPlano(@PathVariable Long trainingPlanId,
+      @RequestBody @Valid TrainingPlansDTO trainingPlansDTO,
+      @RequestHeader("Authorization") String authorizationHeader) {
     try {
-      TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO);
-      return ResponseEntity.status(HttpStatus.OK).body(updatedPlan);
+      String token = authorizationHeader.replace("Bearer ", "");
+      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
+      TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO,
+          Long.parseLong(userIdFromToken));
+      return ResponseEntity.ok(updatedPlan);
     } catch (ResourceNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(Map.of("error", "Plano de treino não encontrado."));
+    } catch (AccessDeniedException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .body(Map.of("error", "Você não tem permissão para atualizar este plano."));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "Erro interno no servidor. Tente novamente mais tarde."));
     }
   }
 
-  @DeleteMapping("/{trainingPlanId}")
-  public ResponseEntity<Void> deletarPlano(@PathVariable Long trainingPlanId) {
+  @DeleteMapping("/{id}")
+  public ResponseEntity<?> deleteTrainingPlan(
+      @PathVariable Long id,
+      @RequestHeader("Authorization") String authorizationHeader) {
     try {
-      trainingPlansService.deletarPlano(trainingPlanId);
+      String token = authorizationHeader.replace("Bearer ", "");
+      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
+
+      trainingPlansService.deletarPlano(id, Long.parseLong(userIdFromToken));
       return ResponseEntity.noContent().build();
-    } catch (ResourceNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    } catch (AccessDeniedException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "Ocorreu um erro inesperado."));
     }
   }
 
@@ -86,8 +126,41 @@ public class TrainingPlansController {
   }
 
   @GetMapping("/{id}/exercise")
-  public ResponseEntity<TrainingPlansDTO> getTrainingPlan(@PathVariable Long id) {
-    TrainingPlansDTO trainingPlan = trainingPlansService.getTrainingPlanById(id);
-    return ResponseEntity.ok(trainingPlan);
+  public ResponseEntity<?> getTrainingPlanById(
+      @PathVariable Long id,
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    try {
+      String token = authorizationHeader.replace("Bearer ", "");
+
+      TrainingPlansDTO trainingPlanDTO = trainingPlansService.getTrainingPlanById(id, token);
+
+      return ResponseEntity.ok(trainingPlanDTO);
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    } catch (AccessDeniedException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "Ocorreu um erro inesperado."));
+    }
+  }
+
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<?> getTrainingPlansByUserId(@PathVariable Long userId,
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    try {
+      String token = authorizationHeader.replace("Bearer ", "");
+      List<TrainingPlansDTO> trainingPlans = trainingPlansService.getTrainingPlansByUserId(userId, token);
+      return ResponseEntity.ok(trainingPlans);
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    } catch (AccessDeniedException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+    }
   }
 }

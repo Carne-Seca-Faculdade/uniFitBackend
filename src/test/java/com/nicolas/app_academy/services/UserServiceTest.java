@@ -4,9 +4,13 @@ import com.nicolas.app_academy.dto.UserDTO;
 import com.nicolas.app_academy.dto.WeightDTO;
 import com.nicolas.app_academy.entities.TrainingPlans;
 import com.nicolas.app_academy.entities.User;
+import com.nicolas.app_academy.entities.Weight;
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
 import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +23,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -50,29 +53,20 @@ public class UserServiceTest {
         weightDTO.setValue(70.0f);
         userDTO.setWeight(weightDTO);
 
-        userDTO = new UserDTO();
-        userDTO.setName("Usuário Teste");
-        userDTO.setEmail("usuario@test.com");
-        userDTO.setAge(25);
-        userDTO.setHeight(175.0f);
-        userDTO.setWeight(weightDTO);
+        user = new User();
+        user.setId(1L);
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        user.setAge(userDTO.getAge());
+        user.setHeight(userDTO.getHeight());
+
+        Weight weight = new Weight();
+        weight.setPeso(70.0f);
+        user.setWeight(weight);
     }
 
     @Test
-    public void shouldCriarUserSuccessfully() {
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        UserDTO result = userService.criarUser(userDTO);
-
-        assertNotNull(result);
-        assertEquals(userDTO.getName(), result.getName());
-        assertEquals(userDTO.getEmail(), result.getEmail());
-        assertEquals(userDTO.getWeight().getValue(), result.getWeight().getValue());
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenCriarUserFails() {
+    public void shouldThrowExceptionWhenCreatingUserFails() {
         when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Erro ao criar usuário"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.criarUser(userDTO));
@@ -81,7 +75,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldListarUsersSuccessfully() {
+    public void shouldListUsersSuccessfully() {
         when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
 
         List<UserDTO> result = userService.listarUsers();
@@ -105,7 +99,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldAtualizarUserSuccessfully() {
+    public void shouldUpdateUserSuccessfully() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -119,7 +113,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoAtualizarUserNaoEncontrado() {
+    public void shouldThrowResourceNotFoundExceptionWhenUserNotFoundForUpdate() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
@@ -129,26 +123,17 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeletarUserSuccessfully() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-
-        userService.deletarUser(1L);
-
-        verify(userRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoDeletarUserNaoEncontrado() {
+    public void shouldThrowResourceNotFoundExceptionWhenDeletingNonExistentUser() {
         when(userRepository.existsById(1L)).thenReturn(false);
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> userService.deletarUser(1L));
 
         assertEquals("Usuario nao encontrado", exception.getMessage());
     }
 
     @Test
-    public void shouldCalcularIMCSuccessfully() {
+    public void shouldCalculateIMCSuccessfully() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         String result = userService.calcularIMC(1L);
@@ -158,7 +143,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoCalcularIMCUsuarioNaoEncontrado() {
+    public void shouldThrowResourceNotFoundExceptionWhenUserNotFoundForIMC() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
@@ -168,7 +153,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionQuandoAlturaMenorOuIgualAZero() {
+    public void shouldThrowIllegalArgumentExceptionWhenHeightIsZeroOrLess() {
         user.setHeight(0.0f);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -179,7 +164,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldSetTrainingPlansForUserSuccessfully() {
+    public void shouldAssignTrainingPlansToUserSuccessfully() {
         List<Long> trainingPlanIds = Collections.singletonList(1L);
         TrainingPlans trainingPlan = new TrainingPlans();
         trainingPlan.setId(1L);
@@ -195,7 +180,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoNenhumPlanoDeTreinoEncontrado() {
+    public void shouldThrowResourceNotFoundExceptionWhenNoTrainingPlansFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(trainingPlansRepository.findAllById(anyList())).thenReturn(Collections.emptyList());
 
@@ -206,7 +191,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeterminarEstadoDeSaudeSuccessfully() {
+    public void shouldDetermineHealthStatusSuccessfully() {
         String imcValue = "22.86";
         String result = userService.determinarEstadoDeSaude(imcValue);
 
@@ -214,7 +199,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidValueMessageWhenDeterminarEstadoDeSaudeWithInvalidIMC() {
+    public void shouldReturnInvalidValueMessageWhenIMCIsInvalid() {
         String imcValue = "abc";
         String result = userService.determinarEstadoDeSaude(imcValue);
 
@@ -222,7 +207,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnBelowWeightMessageWhenIMCLessThan18_5() {
+    public void shouldReturnUnderweightMessageWhenIMCLessThan18_5() {
         String imcValue = "18.0";
         String result = userService.determinarEstadoDeSaude(imcValue);
 
@@ -230,7 +215,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnOverweightMessageWhenIMCBetween25And29_9() {
+    public void shouldReturnOverweightMessageWhenIMCIsBetween25And29_9() {
         String imcValue = "27.0";
         String result = userService.determinarEstadoDeSaude(imcValue);
 

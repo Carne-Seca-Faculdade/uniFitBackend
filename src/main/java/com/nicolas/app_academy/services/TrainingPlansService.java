@@ -1,6 +1,7 @@
 package com.nicolas.app_academy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -8,6 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
+
+import com.nicolas.app_academy.auth.utils.JwtUtils;
 import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.entities.Exercise;
@@ -32,17 +37,15 @@ public class TrainingPlansService {
   @Autowired
   private ExerciseService exerciseService;
 
-  public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO, List<Long> userIds) {
-    List<User> users = userRepository.findAllById(userIds);
+  @Autowired
+  private JwtUtils jwtUtils;
 
-    if (users.size() != userIds.size()) {
-      throw new ResourceNotFoundException("Um ou mais usuarios nao foram encontrados.");
-    }
+  public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO, Long userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("Usuario nao encontrado"));
 
-    for (User user : users) {
-      if (user.getTrainingPlans().size() >= 3) {
-        throw new IllegalArgumentException("Usuario " + user.getName() + " ja possui 3 planos de treino ativos.");
-      }
+    if (user.getTrainingPlans().size() >= 3) {
+      throw new IllegalArgumentException("Usuario " + user.getName() + " ja possui 3 planos de treino ativos.");
     }
 
     TrainingPlans trainingPlan = new TrainingPlans();
@@ -50,10 +53,10 @@ public class TrainingPlansService {
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());
     trainingPlan.setDuration(trainingPlanDTO.getDuration());
 
-    if (!users.isEmpty()) {
-      trainingPlan.setUsers(users);
+    if (!user.equals(null)) {
+      trainingPlan.setUser(user);
     } else {
-      trainingPlan.setUsers(new ArrayList<>());
+      trainingPlan.setUser(null);
     }
 
     List<Exercise> exercises = new ArrayList<>();
@@ -70,10 +73,8 @@ public class TrainingPlansService {
 
     TrainingPlans trainingPlanSaved = trainingPlansRepository.save(trainingPlan);
 
-    for (User user : users) {
-      user.getTrainingPlans().add(trainingPlanSaved);
-      userRepository.save(user);
-    }
+    user.getTrainingPlans().add(trainingPlanSaved);
+    userRepository.save(user);
 
     if (trainingPlanDTO.getNewExercises() != null && !trainingPlanDTO.getNewExercises().isEmpty()) {
       for (ExerciseDTO newExerciseDTO : trainingPlanDTO.getNewExercises()) {
@@ -88,12 +89,11 @@ public class TrainingPlansService {
 
         exercises.add(newExercise);
       }
+
+      trainingPlanSaved.setExerciseList(exercises);
+      exerciseRepository.saveAll(exercises);
+      trainingPlansRepository.save(trainingPlanSaved);
     }
-
-    trainingPlanSaved.setExerciseList(exercises);
-    exerciseRepository.saveAll(exercises);
-    trainingPlansRepository.save(trainingPlanSaved);
-
     return new TrainingPlansDTO(trainingPlanSaved, true);
   }
 
@@ -103,15 +103,21 @@ public class TrainingPlansService {
     }).collect(Collectors.toList());
   }
 
-  public TrainingPlansDTO atualizarPlano(Long trainingPlanId, TrainingPlansDTO trainingPlanDTO) {
+  public TrainingPlansDTO atualizarPlano(Long trainingPlanId, TrainingPlansDTO trainingPlanDTO, Long userId) {
     TrainingPlans trainingPlan = trainingPlansRepository.findById(trainingPlanId)
         .orElseThrow(() -> new ResourceNotFoundException("Plano de treino nao encontrado"));
+
+    boolean isOwner = trainingPlan.getUser().getId().equals(userId);
+
+    if (!isOwner) {
+      throw new AccessDeniedException("Voca nao tem permissao para atualizar este plano.");
+    }
 
     trainingPlan.setPlanName(trainingPlanDTO.getPlanName());
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());
     trainingPlan.setDuration(trainingPlanDTO.getDuration());
-    
-    List<Exercise> updatedExercises = new ArrayList<>();  
+
+    List<Exercise> updatedExercises = new ArrayList<>();
 
     if (trainingPlanDTO.getExerciseIds() != null && !trainingPlanDTO.getExerciseIds().isEmpty()) {
       for (Long exerciseId : trainingPlanDTO.getExerciseIds()) {
@@ -144,11 +150,18 @@ public class TrainingPlansService {
     return new TrainingPlansDTO(trainingPlan, true);
   }
 
-  public void deletarPlano(Long trainingPlanId) {
-    if (!trainingPlansRepository.existsById(trainingPlanId)) {
-      throw new ResourceNotFoundException("Plano de treino nao encontrado");
+  public void deletarPlano(Long trainingPlanId, Long userId) {
+    TrainingPlans plan = trainingPlansRepository.findById(trainingPlanId)
+        .orElseThrow(() -> new EntityNotFoundException("Plano de treino nao encontrado"));
+
+    if (!plan.getUser().getId().equals(userId)) {
+      throw new AccessDeniedException("Voce nao tem permissao para excluir este plano.");
     }
-    trainingPlansRepository.deleteById(trainingPlanId);
+
+    User user = plan.getUser();
+    user.getTrainingPlans().remove(plan);
+
+    trainingPlansRepository.delete(plan);
   }
 
   public ExerciseDTO addExerciseToTrainingPlan(Long trainingPlanId, ExerciseDTO exerciseDTO) {
@@ -170,18 +183,44 @@ public class TrainingPlansService {
     trainingPlan.getExerciseList().add(newExercise);
     trainingPlansRepository.save(trainingPlan);
 
-    return new ExerciseDTO(newExercise); 
+    return new ExerciseDTO(newExercise);
   }
 
-  public TrainingPlansDTO getTrainingPlanById(Long id) {
+  public List<TrainingPlansDTO> getTrainingPlansByUserId(Long userId, String token) {
+    String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
+    Long userIdFromTokenLong = Long.parseLong(userIdFromToken);
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado"));
+
+    if (!user.getId().equals(userIdFromTokenLong)) {
+      throw new AccessDeniedException("Voce nao tem permissao para acessar os planos de treino deste usuario.");
+    }
+
+    return user.getTrainingPlans().stream()
+        .map(plan -> new TrainingPlansDTO(plan, false))
+        .collect(Collectors.toList());
+  }
+
+  public TrainingPlansDTO getTrainingPlanById(Long id, String token) {
+    String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
+
+    Long userIdFromTokenLong = Long.parseLong(userIdFromToken);
+
     TrainingPlans trainingPlan = trainingPlansRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Plano de treino nao encontrado"));
+        .orElseThrow(() -> new EntityNotFoundException("Plano de treino nao encontrado"));
+
+    boolean isOwner = trainingPlan.getUser().getId().equals(userIdFromTokenLong);
+
+    if (!isOwner) {
+      throw new AccessDeniedException("Voce nao tem permissao para acessar este plano.");
+    }
 
     List<ExerciseDTO> exercises = exerciseService.getExercisesByIds(trainingPlan.getExerciseIds());
 
     TrainingPlansDTO trainingPlanDTO = new TrainingPlansDTO(trainingPlan);
     trainingPlanDTO.setNewExercises(exercises);
+
     return trainingPlanDTO;
   }
-
 }

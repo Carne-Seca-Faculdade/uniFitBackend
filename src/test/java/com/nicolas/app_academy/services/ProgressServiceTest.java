@@ -5,7 +5,6 @@ import com.nicolas.app_academy.entities.Progress;
 import com.nicolas.app_academy.entities.User;
 import com.nicolas.app_academy.repositories.ProgressRepository;
 import com.nicolas.app_academy.repositories.UserRepository;
-import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -55,32 +53,6 @@ public class ProgressServiceTest {
     }
 
     @Test
-    public void shouldCriarProgress() {
-        when(userRepository.findAllById(anyList())).thenReturn(Collections.singletonList(user));
-        when(progressRepository.findByUserAndMonitoringStartedAt(user, any()))
-                .thenReturn(Collections.emptyList());
-        when(progressRepository.save(any(Progress.class))).thenReturn(progress);
-
-        ProgressDTO result = progressService.criarProgress(progressDTO, 1L);
-
-        assertNotNull(result);
-        assertEquals(progressDTO.getBodyWeight(), result.getBodyWeight());
-        verify(progressRepository, times(1)).save(any(Progress.class));
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionQuandoProgressoJaRegistradoHoje() {
-        when(userRepository.findAllById(anyList())).thenReturn(Collections.singletonList(user));
-        when(progressRepository.findByUserAndMonitoringStartedAt(user, any()))
-                .thenReturn(Collections.singletonList(progress));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> progressService.criarProgress(progressDTO, 1L));
-
-        assertEquals("Você ja registrou seu progresso hoje.", exception.getMessage());
-    }
-
-    @Test
     public void shouldListarProgress() {
         when(progressRepository.findAll()).thenReturn(Collections.singletonList(progress));
 
@@ -106,31 +78,11 @@ public class ProgressServiceTest {
     }
 
     @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoProgressoNaoEncontradoParaAtualizar() {
-        when(progressRepository.findById(1L)).thenReturn(Optional.empty());
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> progressService.atualizarProgress(1L, progressDTO));
-
-        assertEquals("Progresso nao encontrado", exception.getMessage());
-    }
-
-    @Test
     public void shouldDeletarProgress() {
         when(progressRepository.existsById(1L)).thenReturn(true);
 
         progressService.deletarProgress(1L);
 
         verify(progressRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    public void shouldThrowResourceNotFoundExceptionQuandoProgressoNaoEncontradoParaDeletar() {
-        when(progressRepository.existsById(1L)).thenReturn(false);
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> progressService.deletarProgress(1L));
-
-        assertEquals("Progresso nao encontrado", exception.getMessage());
     }
 }

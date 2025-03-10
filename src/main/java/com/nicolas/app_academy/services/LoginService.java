@@ -1,14 +1,14 @@
-package com.nicolas.app_academy.auth.services;
+package com.nicolas.app_academy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import com.nicolas.app_academy.auth.Login;
-import com.nicolas.app_academy.auth.repositories.LoginRepository;
 import com.nicolas.app_academy.auth.utils.JwtUtils;
+import com.nicolas.app_academy.dto.Login;
 import com.nicolas.app_academy.entities.User;
+import com.nicolas.app_academy.repositories.LoginRepository;
 
 @Service
 public class LoginService {
@@ -17,6 +17,7 @@ public class LoginService {
   private LoginRepository repository;
   @Autowired
   private JwtUtils jwtService;
+  
   @Autowired
   private AuthenticationManager authenticationManager;
 
