@@ -11,7 +11,6 @@ import com.nicolas.app_academy.entities.WeightHistory;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
@@ -19,6 +18,8 @@ import com.nicolas.app_academy.repositories.UserRepository;
 import com.nicolas.app_academy.repositories.WeightHistoryRepository;
 import com.nicolas.app_academy.repositories.WeightRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -127,10 +128,13 @@ public class UserService {
     }
 
     public void deletarUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("Usuario nao encontrado");
-        }
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario nao encontrado"));
+
+        weightRepository.deleteByUserId(userId);
+        weightHistoryRepository.deleteByUserId(userId);
+
+        userRepository.delete(user);
     }
 
     public String determinarEstadoDeSaude(String imcValue) {

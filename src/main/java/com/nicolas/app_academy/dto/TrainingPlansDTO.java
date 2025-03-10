@@ -2,7 +2,6 @@ package com.nicolas.app_academy.dto;
 
 import com.nicolas.app_academy.entities.Exercise;
 import com.nicolas.app_academy.entities.TrainingPlans;
-import com.nicolas.app_academy.entities.User;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,7 @@ public class TrainingPlansDTO implements Serializable {
   private String planDescription;
   private Integer duration;
   private List<Long> exerciseIds;
-  private List<Long> userIds;
+  private Long userId;
   private List<ExerciseDTO> newExercises;
 
   public TrainingPlansDTO(TrainingPlans trainingPlans, boolean includeNewExercises) {
@@ -30,8 +29,8 @@ public class TrainingPlansDTO implements Serializable {
     this.exerciseIds = trainingPlans.getExerciseList() != null
         ? trainingPlans.getExerciseList().stream().map(Exercise::getId).collect(Collectors.toList())
         : null;
-    this.userIds = trainingPlans.getUsers() != null
-        ? trainingPlans.getUsers().stream().map(User::getId).collect(Collectors.toList())
+    this.userId = trainingPlans.getUser() != null
+        ? trainingPlans.getUser().getId()
         : null;
 
     if (includeNewExercises && trainingPlans.getExerciseList() != null) {
@@ -49,8 +48,18 @@ public class TrainingPlansDTO implements Serializable {
     this.exerciseIds = trainingPlans.getExerciseList() != null
         ? trainingPlans.getExerciseList().stream().map(Exercise::getId).collect(Collectors.toList())
         : null;
-    this.userIds = trainingPlans.getUsers() != null
-        ? trainingPlans.getUsers().stream().map(User::getId).collect(Collectors.toList())
+    this.userId = trainingPlans.getUser() != null
+        ? trainingPlans.getUser().getId()
         : null;
+  }
+
+  public TrainingPlansDTO(Long id, String planName, String planDescription, Integer duration,
+      List<Long> exerciseIds, Long userId) {
+    this.id = id;
+    this.planName = planName;
+    this.planDescription = planDescription;
+    this.duration = duration;
+    this.exerciseIds = exerciseIds;
+    this.userId = userId;
   }
 }

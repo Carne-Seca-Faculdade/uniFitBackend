@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.nicolas.app_academy.auth.repositories.LoginRepository;
+import com.nicolas.app_academy.repositories.LoginRepository;
 
 @Configuration
 public class SecurityManager {

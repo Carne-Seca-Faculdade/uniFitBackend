@@ -1,4 +1,4 @@
-package com.nicolas.app_academy.auth.repositories;
+package com.nicolas.app_academy.repositories;
 
 import java.util.Optional;
 

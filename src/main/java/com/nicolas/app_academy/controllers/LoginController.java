@@ -1,4 +1,4 @@
-package com.nicolas.app_academy.auth.controllers;
+package com.nicolas.app_academy.controllers;
 
 import java.util.Map;
 
@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nicolas.app_academy.auth.Login;
-import com.nicolas.app_academy.auth.services.LoginService;
-import com.nicolas.app_academy.auth.services.RegisterService;
+import com.nicolas.app_academy.dto.Login;
+import com.nicolas.app_academy.services.LoginService;
+import com.nicolas.app_academy.services.RegisterService;
+import com.nicolas.app_academy.services.exception.EmailAlreadyInUseException;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin({ "*" })
 public class LoginController {
 
   @Autowired
@@ -36,7 +37,7 @@ public class LoginController {
       return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     } catch (Exception e) {
       System.out.println(e.getMessage());
-      return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -45,10 +46,10 @@ public class LoginController {
     try {
       registerService.registerUser(login);
       return ResponseEntity.ok(Map.of("message", "User registered successfully"));
-    } catch (Exception e) {
-      return new ResponseEntity<>(
-          Map.of("error", "Error to register user"),
-          HttpStatus.BAD_REQUEST);
+    } catch (EmailAlreadyInUseException e) {
+      return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) { 
+      return new ResponseEntity<>(Map.of("error", "Error to register user"), HttpStatus.BAD_REQUEST);
     }
   }
 }

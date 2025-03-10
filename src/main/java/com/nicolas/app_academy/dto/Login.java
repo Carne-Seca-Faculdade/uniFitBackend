@@ -1,4 +1,4 @@
-package com.nicolas.app_academy.auth;
+package com.nicolas.app_academy.dto;
 
 public record Login(
                 String email,
