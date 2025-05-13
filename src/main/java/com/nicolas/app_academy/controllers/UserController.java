@@ -1,12 +1,11 @@
 package com.nicolas.app_academy.controllers;
 
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nicolas.app_academy.dto.UserDTO;
 import com.nicolas.app_academy.services.UserService;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
+import com.nicolas.app_academy.utils.JwtUserUtils;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -28,7 +28,11 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private JwtUserUtils utils;
+
   @GetMapping
+  @PreAuthorize("hasAuthority('ADMIN')")
   public ResponseEntity<List<UserDTO>> listarUsers() {
     try {
       List<UserDTO> users = userService.listarUsers();
@@ -40,27 +44,18 @@ public class UserController {
     }
   }
 
-  @GetMapping("/{userId}")
-  public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId) {
+  @GetMapping("/roles")
+  public List<String> getUserRoles() {
+    return utils.getRoles();
+  }
+
+  @GetMapping("profile")
+  public ResponseEntity<UserDTO> getUserProfile() {
     try {
-      UserDTO user = userService.findUserById(userId);
+      UserDTO user = userService.findUserProfile();
       return ResponseEntity.status(HttpStatus.OK).body(user);
     } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    }
-  }
-
-  @GetMapping("/{userId}/calcularIMC")
-  public ResponseEntity<Map<String, String>> calcularIMC(@PathVariable Long userId) {
-    try {
-      String imc = userService.calcularIMC(userId);
-      Map<String, String> response = new HashMap<>();
-      response.put("IMC", imc);
-      return ResponseEntity.ok(response);
-    } catch (ResourceNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
 

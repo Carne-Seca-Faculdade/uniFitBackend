@@ -1,6 +1,7 @@
 package com.nicolas.app_academy.dto;
 
-public record Login(
+public record Register(
+    String username,
     String email,
     String password) {
 }
