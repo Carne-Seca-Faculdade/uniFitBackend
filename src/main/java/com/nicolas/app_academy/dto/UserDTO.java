@@ -16,27 +16,21 @@ public class UserDTO implements Serializable {
   private Long id;
   private String name;
   private String email;
-  private String password;
   private String role;
   private Integer age;
-  private WeightDTO weight;
   private Float height;
-  private ProgressDTO progress;
   private List<Long> trainingPlansIds;
+  private String userIdentifier;
 
   public UserDTO(User user) {
     this.id = user.getId();
     this.name = user.getName();
     this.email = user.getEmail();
-    this.password = user.getPassword();
     this.role = user.getRole();
     this.age = user.getAge();
-
-    this.weight = user.getWeight() != null ? new WeightDTO(user.getWeight()) : null;
+    this.userIdentifier = user.getUserIdentifier();
 
     this.height = user.getHeight();
-    this.progress = user.getProgress() != null ? new ProgressDTO(user.getProgress()) : null;
-
     this.trainingPlansIds = user.getTrainingPlans() != null
         ? user.getTrainingPlans().stream().map(TrainingPlans::getId).collect(Collectors.toList())
         : null;

@@ -8,10 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.entities.Exercise;
-import com.nicolas.app_academy.entities.Progress;
 import com.nicolas.app_academy.entities.TrainingPlans;
 import com.nicolas.app_academy.repositories.ExerciseRepository;
-import com.nicolas.app_academy.repositories.ProgressRepository;
 import com.nicolas.app_academy.repositories.TrainingPlansRepository;
 import com.nicolas.app_academy.services.exception.ResourceNotFoundException;
 
@@ -23,9 +21,6 @@ public class ExerciseService {
 
   @Autowired
   private TrainingPlansRepository trainingPlansRepository;
-
-  @Autowired
-  private ProgressRepository progressRepository;
 
   public ExerciseDTO criarExercicio(ExerciseDTO exerciseDTO) {
     Exercise exercise = new Exercise();
@@ -41,12 +36,6 @@ public class ExerciseService {
           .orElseThrow(() -> new ResourceNotFoundException(
               "Plano de treino nao encontrado"));
       exercise.setTrainingPlans(trainingPlan);
-    }
-
-    if (exerciseDTO.getProgressId() != null) {
-      Progress progress = progressRepository.findById(exerciseDTO.getProgressId())
-          .orElseThrow(() -> new ResourceNotFoundException("Progresso nao encontrado"));
-      exercise.setProgress(progress);
     }
 
     Exercise exerciseSaved = exerciseRepository.save(exercise);
@@ -76,12 +65,6 @@ public class ExerciseService {
       TrainingPlans trainingPlan = trainingPlansRepository.findById(exerciseDTO.getTrainingPlanId())
           .orElseThrow(() -> new ResourceNotFoundException("Plano de treino nao encontrado"));
       exercise.setTrainingPlans(trainingPlan);
-    }
-
-    if (exerciseDTO.getProgressId() != null) {
-      Progress progress = progressRepository.findById(exerciseDTO.getProgressId())
-          .orElseThrow(() -> new ResourceNotFoundException("Progresso nao encontrado"));
-      exercise.setProgress(progress);
     }
 
     Exercise exerciseUpdated = exerciseRepository.save(exercise);

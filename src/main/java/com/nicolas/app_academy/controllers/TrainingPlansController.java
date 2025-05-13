@@ -8,18 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.nicolas.app_academy.auth.utils.JwtUtils;
 import com.nicolas.app_academy.dto.ExerciseDTO;
 import com.nicolas.app_academy.dto.TrainingPlansDTO;
 import com.nicolas.app_academy.services.TrainingPlansService;
@@ -30,32 +20,18 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/planos-treino")
-@CrossOrigin({ "*" })
+@CrossOrigin("*")
+@PreAuthorize("hasAnyAuthority('ADMIN','USER')")
 public class TrainingPlansController {
+
   @Autowired
   private TrainingPlansService trainingPlansService;
 
-  @Autowired
-  private JwtUtils jwtUtils;
-
-  @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
   @PostMapping("/save")
-  public ResponseEntity<?> createTrainingPlan(
-      @RequestBody TrainingPlansDTO trainingPlansDTO,
-      @RequestHeader("Authorization") String authorizationHeader) {
-
+  public ResponseEntity<?> createTrainingPlan(@RequestBody TrainingPlansDTO trainingPlansDTO) {
     try {
-      String token = authorizationHeader.replace("Bearer ", "");
-      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
-      Long userId = Long.parseLong(userIdFromToken);
-
-      TrainingPlansDTO newPlan = trainingPlansService.criarPlano(trainingPlansDTO, userId);
-
+      TrainingPlansDTO newPlan = trainingPlansService.criarPlano(trainingPlansDTO);
       return ResponseEntity.status(HttpStatus.CREATED).body(newPlan);
-    } catch (EntityNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of("error", "Ocorreu um erro inesperado."));
@@ -65,8 +41,8 @@ public class TrainingPlansController {
   @GetMapping
   public ResponseEntity<List<TrainingPlansDTO>> listarPlanos() {
     try {
-      List<TrainingPlansDTO> planos = trainingPlansService.listarPlanos();
-      return ResponseEntity.status(HttpStatus.OK).body(planos);
+      List<TrainingPlansDTO> planos = trainingPlansService.getAllTrainingPlans();
+      return ResponseEntity.ok(planos);
     } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     } catch (Exception e) {
@@ -75,14 +51,11 @@ public class TrainingPlansController {
   }
 
   @PutMapping("/{trainingPlanId}")
-  public ResponseEntity<?> atualizarPlano(@PathVariable Long trainingPlanId,
-      @RequestBody @Valid TrainingPlansDTO trainingPlansDTO,
-      @RequestHeader("Authorization") String authorizationHeader) {
+  public ResponseEntity<?> atualizarPlano(
+      @PathVariable Long trainingPlanId,
+      @RequestBody @Valid TrainingPlansDTO trainingPlansDTO) {
     try {
-      String token = authorizationHeader.replace("Bearer ", "");
-      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
-      TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO,
-          Long.parseLong(userIdFromToken));
+      TrainingPlansDTO updatedPlan = trainingPlansService.atualizarPlano(trainingPlanId, trainingPlansDTO);
       return ResponseEntity.ok(updatedPlan);
     } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -98,13 +71,9 @@ public class TrainingPlansController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteTrainingPlan(
-      @PathVariable Long id,
-      @RequestHeader("Authorization") String authorizationHeader) {
+      @PathVariable Long id) {
     try {
-      String token = authorizationHeader.replace("Bearer ", "");
-      String userIdFromToken = jwtUtils.extractClaim(token, claims -> claims.get("id", String.class));
-
-      trainingPlansService.deletarPlano(id, Long.parseLong(userIdFromToken));
+      trainingPlansService.deletarPlano(id);
       return ResponseEntity.noContent().build();
     } catch (EntityNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
@@ -127,40 +96,37 @@ public class TrainingPlansController {
 
   @GetMapping("/{id}/exercise")
   public ResponseEntity<?> getTrainingPlanById(
-      @PathVariable Long id,
-      @RequestHeader("Authorization") String authorizationHeader) {
-
+      @PathVariable Long id) {
     try {
-      String token = authorizationHeader.replace("Bearer ", "");
-
-      TrainingPlansDTO trainingPlanDTO = trainingPlansService.getTrainingPlanById(id, token);
-
+      TrainingPlansDTO trainingPlanDTO = trainingPlansService.getTrainingPlanById(id);
       return ResponseEntity.ok(trainingPlanDTO);
     } catch (EntityNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error",
+          e.getMessage()));
     } catch (AccessDeniedException e) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error",
+          e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of("error", "Ocorreu um erro inesperado."));
     }
   }
 
-  @GetMapping("/user/{userId}")
-  public ResponseEntity<?> getTrainingPlansByUserId(@PathVariable Long userId,
-      @RequestHeader("Authorization") String authorizationHeader) {
-
-    try {
-      String token = authorizationHeader.replace("Bearer ", "");
-      List<TrainingPlansDTO> trainingPlans = trainingPlansService.getTrainingPlansByUserId(userId, token);
-      return ResponseEntity.ok(trainingPlans);
-    } catch (EntityNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-    } catch (AccessDeniedException e) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
-
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
-    }
-  }
+  // @GetMapping("/user/{userId}")
+  // public ResponseEntity<?> getTrainingPlansByUserId(@PathVariable String
+  // userIdentifier) {
+  // try {
+  // List<TrainingPlansDTO> trainingPlans =
+  // trainingPlansService.getTrainingPlansByUserId(userIdentifier);
+  // return ResponseEntity.ok(trainingPlans);
+  // } catch (EntityNotFoundException e) {
+  // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error",
+  // e.getMessage()));
+  // } catch (AccessDeniedException e) {
+  // return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error",
+  // e.getMessage()));
+  // } catch (Exception e) {
+  // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+  // .body(Map.of("error", e.getMessage()));
+  // }
 }

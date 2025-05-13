@@ -18,7 +18,6 @@ public class ExerciseDTO implements Serializable {
   private Integer weightUsed;
   private Integer restTime;
   private Long trainingPlanId;
-  private Long progressId;
 
   public ExerciseDTO(Exercise exercise) {
     this.id = exercise.getId();
@@ -29,6 +28,5 @@ public class ExerciseDTO implements Serializable {
     this.weightUsed = exercise.getWeightUsed();
     this.restTime = exercise.getRestTime();
     this.trainingPlanId = exercise.getTrainingPlans() != null ? exercise.getTrainingPlans().getId() : null;
-    this.progressId = exercise.getProgress() != null ? exercise.getProgress().getId() : null;
   }
 }
