@@ -19,6 +19,7 @@ public class UserDTO implements Serializable {
   private String role;
   private Integer age;
   private Float height;
+  private float weight;
   private List<Long> trainingPlansIds;
   private String userIdentifier;
 

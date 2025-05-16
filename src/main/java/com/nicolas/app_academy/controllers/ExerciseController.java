@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/exercicios")
 @CrossOrigin({ "*" })
-@PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+@PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
 public class ExerciseController {
 
   @Autowired
