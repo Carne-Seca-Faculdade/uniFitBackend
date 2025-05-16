@@ -25,6 +25,7 @@ public class User {
   private String role;
   private Integer age;
   private Float height;
+  private float weight;
 
   @Column(unique = true, nullable = false)
   private String userIdentifier;

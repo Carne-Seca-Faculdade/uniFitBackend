@@ -45,11 +45,13 @@ public class UserController {
   }
 
   @GetMapping("/roles")
+  @PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
   public List<String> getUserRoles() {
     return utils.getRoles();
   }
 
   @GetMapping("profile")
+  @PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
   public ResponseEntity<UserDTO> getUserProfile() {
     try {
       UserDTO user = userService.findUserProfile();
@@ -60,6 +62,7 @@ public class UserController {
   }
 
   @PutMapping("/{userId}/set-plano-treino")
+  @PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
   public ResponseEntity<String> addTrainingPlans(@PathVariable Long userId, @RequestBody List<Long> trainingPlanIds) {
     try {
       if (trainingPlanIds == null || trainingPlanIds.isEmpty()) {
@@ -75,6 +78,7 @@ public class UserController {
   }
 
   @PutMapping("/{userId}")
+  @PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
   public ResponseEntity<UserDTO> atualizarUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
     try {
       UserDTO updatedUser = userService.atualizarUser(userId, userDTO);
@@ -87,6 +91,7 @@ public class UserController {
   }
 
   @DeleteMapping("/{userId}")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public ResponseEntity<Void> deletarUser(@PathVariable Long userId) {
     try {
       userService.deletarUser(userId);

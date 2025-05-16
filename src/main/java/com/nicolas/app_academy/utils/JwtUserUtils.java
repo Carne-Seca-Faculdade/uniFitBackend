@@ -39,7 +39,7 @@ public class JwtUserUtils {
     Collection<GrantedAuthority> authorities = authentication.getAuthorities();
     return authorities.stream()
         .map(GrantedAuthority::getAuthority)
-        .filter(role -> role.equals("USER") || role.equals("ADMIN"))
+        .filter(role -> role.equals("Colaborador") || role.equals("Admin") || role.equals("Unifit"))
         .collect(Collectors.toList());
   }
 }

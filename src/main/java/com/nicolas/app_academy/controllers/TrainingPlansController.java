@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/planos-treino")
 @CrossOrigin("*")
-@PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+@PreAuthorize("hasAnyAuthority('Admin','Colaborador', 'Unifit')")
 public class TrainingPlansController {
 
   @Autowired
