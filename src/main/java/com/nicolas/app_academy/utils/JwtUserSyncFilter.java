@@ -42,19 +42,16 @@ public class JwtUserSyncFilter extends OncePerRequestFilter {
       String userIdentifier = jwt.getSubject();
 
       var roles = utils.getRoles();
-      String role = (roles != null && !roles.isEmpty()) ? roles.get(0) : "";
-
       repository.findUserByUserIdentifier(userIdentifier).orElseGet(() -> {
         User user = new User();
         user.setUserIdentifier(userIdentifier);
         user.setName(jwt.getClaimAsString("name"));
         user.setEmail(jwt.getClaimAsString("email"));
-        user.setRole(role);
+        user.setRoles(roles);
 
         return repository.save(user);
       });
     }
-
     filterChain.doFilter(request, response);
   }
 }

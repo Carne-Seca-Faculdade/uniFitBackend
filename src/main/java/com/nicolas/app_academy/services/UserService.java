@@ -72,6 +72,7 @@ public class UserService {
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setAge(userDTO.getAge());
+        user.setWeight(userDTO.getWeight());
         user.setHeight(userDTO.getHeight());
 
         User userUpdated = userRepository.save(user);
