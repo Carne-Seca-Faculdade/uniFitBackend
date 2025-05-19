@@ -32,7 +32,7 @@ public class UserController {
   private JwtUserUtils utils;
 
   @GetMapping
-  @PreAuthorize("hasAuthority('ADMIN')")
+  @PreAuthorize("hasAuthority('Admin')")
   public ResponseEntity<List<UserDTO>> listarUsers() {
     try {
       List<UserDTO> users = userService.listarUsers();
@@ -91,7 +91,7 @@ public class UserController {
   }
 
   @DeleteMapping("/{userId}")
-  @PreAuthorize("hasAuthority('ADMIN')")
+  @PreAuthorize("hasAuthority('Admin')")
   public ResponseEntity<Void> deletarUser(@PathVariable Long userId) {
     try {
       userService.deletarUser(userId);
