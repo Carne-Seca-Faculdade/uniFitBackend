@@ -111,22 +111,4 @@ public class TrainingPlansController {
           .body(Map.of("error", "Ocorreu um erro inesperado."));
     }
   }
-
-  // @GetMapping("/user/{userId}")
-  // public ResponseEntity<?> getTrainingPlansByUserId(@PathVariable String
-  // userIdentifier) {
-  // try {
-  // List<TrainingPlansDTO> trainingPlans =
-  // trainingPlansService.getTrainingPlansByUserId(userIdentifier);
-  // return ResponseEntity.ok(trainingPlans);
-  // } catch (EntityNotFoundException e) {
-  // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error",
-  // e.getMessage()));
-  // } catch (AccessDeniedException e) {
-  // return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error",
-  // e.getMessage()));
-  // } catch (Exception e) {
-  // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-  // .body(Map.of("error", e.getMessage()));
-  // }
 }

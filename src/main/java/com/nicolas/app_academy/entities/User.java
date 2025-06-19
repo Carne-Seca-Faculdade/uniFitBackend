@@ -27,7 +27,7 @@ public class User {
 
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> roles;
-  
+
   private Integer age;
   private Float height;
   private float weight;
