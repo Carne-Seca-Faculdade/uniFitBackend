@@ -41,11 +41,7 @@ public class TrainingPlansService {
 
   public TrainingPlansDTO criarPlano(TrainingPlansDTO trainingPlanDTO) {
     User user = utils.getLoggedUser();
-
-    if (user.getTrainingPlans().size() >= 3) {
-      throw new IllegalArgumentException("Usuario " + user.getName() + " ja possui 3 planos de treino ativos.");
-    }
-
+    
     TrainingPlans trainingPlan = new TrainingPlans();
     trainingPlan.setPlanName(trainingPlanDTO.getPlanName());
     trainingPlan.setPlanDescription(trainingPlanDTO.getPlanDescription());

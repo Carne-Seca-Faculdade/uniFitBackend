@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,7 @@ public class AuditionService {
   @Autowired
   private EntityManager entityManager;
 
-  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-      .withZone(ZoneId.systemDefault());
+  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
   public List<TrainingPlanAuditDTO> getTrainingPlanAuditHistory(Long trainingPlanId) {
     AuditReader reader = AuditReaderFactory.get(entityManager);
